@@ -22,7 +22,7 @@ const Error = error{
     IoErrorWhileReadingTimelog,
     InvalidDateTimeFormat,
     ClockOutBeforeClockIn,
-    UnexpectClockIn,
+    UnexpectedClockIn,
     UnexpectedClockOut,
     Oops,
 };
@@ -84,7 +84,7 @@ pub fn main() !void {
             };
             continue;
         }
-        // skip space folling i or o.
+        // skip space following i or o.
         reader.skipBytes(1, .{}) catch {
             std.log.err("Error while reading from time log file, at line {d}", .{line_num});
             return Error.IoErrorWhileReadingTimelog;
@@ -159,7 +159,7 @@ pub fn main() !void {
             return Error.UnexpectedClockOut;
         } else {
             std.log.err("Unexpected clock in on line {d}", .{line_num});
-            return Error.UnexpectedClockOut;
+            return Error.UnexpectedClockIn;
         }
         std.log.debug("finished {d}", .{line_num});
     }
@@ -207,7 +207,7 @@ pub fn main() !void {
     try stdout.print("{0s: <45}{1s}\n", .{ "Total time worked:", try format_as_hours_minutes(total_worked, &buff) });
     try stdout.print("{0s: <45}{1d}\n", .{ "Number of days worked:", days_worked });
     try stdout.print("{s:─<71}\n", .{hline});
-    try stdout.print("{0s: <45}{1s}\n", .{ "Cummulative overtime per yesterday:", try format_as_hours_minutes(overtime, &buff) });
+    try stdout.print("{0s: <45}{1s}\n", .{ "Cumulative overtime per yesterday:", try format_as_hours_minutes(overtime, &buff) });
     try stdout.print("{0s: <45}{1s}\n", .{ "Worked today:", try format_as_hours_minutes(worked_today, &buff) });
     try stdout.print("{0s: <45}{1s}\n", .{ "Still to work (8hrs):", try format_as_hours_minutes(still_to_work_8, &buff) });
     try stdout.print("{0s: <45}{1s}\n", .{ "Still to work:", try format_as_hours_minutes(still_to_work, &buff) });
@@ -398,7 +398,7 @@ fn format_nullable_time(time: ?Time, buff: []u8) ![]const u8 {
     }
 }
 
-test "fomat nullable time should be correct" {
+test "format nullable time should be correct" {
     var buff = [_]u8{0} ** 255;
     const t1: ?Time = null;
     try std.testing.expectEqualStrings(value_undefined, try format_nullable_time(t1, &buff));
